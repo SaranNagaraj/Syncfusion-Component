@@ -1,7 +1,6 @@
 import { useState } from "react";
 
 import Sidebar from "./components/Sidebar";
-import RightPanel from "./components/RightPanel";
 
 import DocxEditor from "./components/viewers/DocxEditor";
 import PresentationViewer from "./components/viewers/PresentationViewer";
@@ -14,34 +13,6 @@ import type { ViewerType } from "./types";
 function App() {
   const [selected, setSelected] =
     useState<ViewerType>("docx");
-
-  const [searchText, setSearchText] = useState("");
-
-  const [results, setResults] = useState([
-    {
-      id: "1",
-      pageNumber: 12,
-      title: "GRANT OF LICENSE",
-    },
-    {
-      id: "2",
-      pageNumber: 45,
-      title: "RESTRICTIONS",
-    },
-    {
-      id: "3",
-      pageNumber: 89,
-      title: "TERMINATION",
-    },
-  ]);
-
-  const handleSearch = () => {
-    console.log("Search:", searchText);
-  };
-
-  const handleResultClick = (result: any) => {
-    console.log("Navigate to:", result);
-  };
 
   const renderViewer = () => {
     switch (selected) {
@@ -73,7 +44,7 @@ function App() {
       <main className="viewer-container">
         {renderViewer()}
       </main>
-
+{/* 
       <RightPanel
         searchText={searchText}
         setSearchText={setSearchText}
@@ -81,7 +52,8 @@ function App() {
         results={results}
         onSearch={handleSearch}
         onResultClick={handleResultClick}
-      />
+      /> */}
+      {/* <PdfViewerSidePanel /> */}
 
     </div>
   );

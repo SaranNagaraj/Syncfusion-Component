@@ -1,5 +1,3 @@
-// components/Sidebar.tsx
-
 import React from "react";
 import type { ViewerType } from "../types";
 
