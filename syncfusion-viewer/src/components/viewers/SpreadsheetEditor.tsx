@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { SpreadsheetComponent } from '@syncfusion/ej2-react-spreadsheet';
 import './Spreadsheet.css';
 import SpreadsheetSidePanel from "./SpreadsheetSidePanel";
+
 const SpreadsheetEditor = () => {
 const spreadsheetRef = useRef<SpreadsheetComponent>(null);
 const sidePanelRef = useRef<{ findRecord: () => void }>(null);
