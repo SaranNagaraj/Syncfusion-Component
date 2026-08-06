@@ -1,201 +1,219 @@
-import React from "react";
-import { useState } from 'react';
-import "./DocxEditor.css"
+import React, { useState } from "react";
+import "./DocxEditor.css";
 
 interface Props {
     docxEditorRef: React.RefObject<any>;
 }
 
+interface SearchOccurrence {
+    id: string;
+    index: number;
+    text: string;
+}
+
 export default function DocxEditorSidePanel({
     docxEditorRef
 }: Props) {
-    const [searchWord, setSearchWord] = useState('');
-    const [searchResults, setSearchResults] = useState([]);
-    const [addedAnnotationIds, setAddedAnnotationIds] = useState([]);
-    const [selectedOccurrence, setSelectedOccurrence] = useState('');
 
-    const px = (pt) => (pt * 96) / 72;
+    const [searchWord, setSearchWord] = useState("");
+    const [searchResults, setSearchResults] = useState<SearchOccurrence[]>([]);
+    const [selectedOccurrence, setSelectedOccurrence] = useState("");
 
-    const handleSearch = async () => {
-        if (!searchWord.trim()) {
+    const handleSearch = () => {
+
+        const editorContainer = docxEditorRef.current;
+
+        if (!editorContainer || !searchWord.trim()) {
             setSearchResults([]);
             return;
         }
 
-        const viewer = docxEditorRef.current;
-        if (!viewer) return;
+        const documentEditor = editorContainer.documentEditor;
 
         try {
-            const results = await viewer.textSearch.findTextAsync(searchWord, false);
-            
-            if (!results || results.length === 0) {
-                setSearchResults([]);
-                return;
-            }
 
-            const formattedResults = [];
-            const annotationIds = [];
-            let occurrenceIndex = 1;
+            documentEditor.search.findAll(searchWord);
 
-            for (const pageResult of results) {
-                if (!pageResult?.bounds?.length) continue;
-                
-                const pageNumber = (pageResult.pageIndex ?? -1) + 1;
-                if (pageNumber < 1) continue;
+            const results = documentEditor.search.searchResults;
+            const offsets = results.getTextSearchResultsOffset();
 
-                const bounds = [];
-                for (const bound of pageResult.bounds) {
-                    bounds.push({
-                        x: px(bound.x),
-                        y: px(bound.y),
-                        width: px(bound.width),
-                        height: px(bound.height)
-                    });
+            const occurrences: SearchOccurrence[] = [];
+
+            for (let i = 0; i < results.length; i++) {
+
+                let paragraphText = searchWord;
+
+                try {
+                    const offset = offsets[i];
+
+                    documentEditor.selection.select(
+                        offset.startOffset,
+                        offset.endOffset
+                    );
+
+                    paragraphText =
+                        documentEditor.selection.text ||
+                        searchWord;
+                } catch (e) {
+                    console.log(e);
                 }
 
-                const highlightId = `Highlight_${pageNumber}_${occurrenceIndex}`;
-                
-                viewer.annotation.addAnnotation('Highlight', {
-                    bounds: bounds,
-                    pageNumber: pageNumber,
-                    customData: {
-                        searchId: highlightId
-                    }
+                occurrences.push({
+                    id: `result-${i}`,
+                    index: i,
+                    text: paragraphText
                 });
-
-                annotationIds.push({ pageNumber, annotationId: highlightId });
-                formattedResults.push({
-                    page: pageNumber,
-                    highlight: searchWord,
-                    id: highlightId,
-                    occurrenceIndex: occurrenceIndex
-                });
-
-                occurrenceIndex++;
             }
 
-            setSearchResults(formattedResults);
-            setAddedAnnotationIds(annotationIds);
-            if (formattedResults.length > 0) {
-                const firstResult = formattedResults[0];
-                setSelectedOccurrence(firstResult.id);
-                viewer.navigation.goToPage(firstResult.page);
-                
-                const firstAnnotation = viewer.annotationCollection?.find(
-                    (a) => a.customData?.searchId === firstResult.id
-                );
-                if (firstAnnotation) {
-                    setTimeout(() => {
-                        viewer.annotation.selectAnnotation(firstAnnotation.annotationId);
-                    }, 200);
-                }
+            setSearchResults(occurrences);
+
+            if (occurrences.length > 0) {
+                handleOccurrenceClick(0);
             }
+
         } catch (error) {
-            console.error('Search error:', error);
+            console.error("Search error:", error);
             setSearchResults([]);
         }
     };
 
-    const handleClear = () => {
-        const viewer = docxEditorRef.current;
-        if (viewer && addedAnnotationIds.length > 0) {
-            addedAnnotationIds.forEach((item) => {
-                try {
-                    const annotation = viewer.annotationCollection?.find(
-                        (a) => a.customData?.searchId === item.annotationId
-                    );
-                    if (annotation) {
-                        viewer.annotation.deleteAnnotationById(annotation.annotationId);
-                    }
-                } catch (e) {
-                    console.log(e);
-                }
-            });
+    const handleOccurrenceClick = (index: number) => {
+
+        const editorContainer = docxEditorRef.current;
+
+        if (!editorContainer) {
+            return;
         }
-        
-        setSearchWord('');
-        setSearchResults([]);
-        setAddedAnnotationIds([]);
-        setSelectedOccurrence('');
+
+        const documentEditor = editorContainer.documentEditor;
+        const results = documentEditor.search.searchResults;
+
+        if (!results || index >= results.length) {
+            return;
+        }
+
+        const offsets =
+            results.getTextSearchResultsOffset();
+
+        if (!offsets || !offsets[index]) {
+            return;
+        }
+
+        const selectedOffset = offsets[index];
+
+        setSelectedOccurrence(`result-${index}`);
+
+        documentEditor.selection.select(
+            selectedOffset.startOffset,
+            selectedOffset.endOffset
+        );
     };
 
-    const handleOccurrenceChange = (event) => {
-        const value = event.target.value;
-        setSelectedOccurrence(value);
+    const handleClear = () => {
 
-        const selected = searchResults.find((x) => x.id === value);
-        if (!selected) return;
+        const editorContainer = docxEditorRef.current;
 
-        const viewer = docxEditorRef.current;
-        if (!viewer) return;
-
-        viewer.navigation.goToPage(selected.page);
-        
-        const annotation = viewer.annotationCollection?.find(
-            (a) => a.customData?.searchId === selected.id
-        );
-        if (annotation) {
-            setTimeout(() => {
-                viewer.annotation.selectAnnotation(annotation.annotationId);
-            }, 200);
+        if (editorContainer) {
+            editorContainer.documentEditor.search.clearSearchHighlight();
         }
+
+        setSearchWord("");
+        setSearchResults([]);
+        setSelectedOccurrence("");
     };
 
     return (
-        <div >
-                {/* Right Panel - Command Panel */}
-                <div className='command-panel'>
-                    {/* Header - Search Input and Button */}
-                    <div className='command-header'>
-                        <input
-                            type='text'
-                            className='search-input'
-                            placeholder='Enter search word...'
-                            value={searchWord}
-                            onChange={(e) => setSearchWord(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                        />
-                        <button className='search-button' onClick={handleSearch}>
-                            Search
-                        </button>
-                    </div>
+        <div className="command-panel">
 
-                    {/* Content Area - Results/Highlights */}
-                    <div className='command-content'>
-                        {searchResults.length > 0 && (
-                            <>
-                                <div className='results-count'>{searchResults.length} Occurrences</div>
-                                <div className='results-list'>
-                                    {searchResults.map((result, index) => (
-                                        <div 
-                                            key={index} 
-                                            className={`result-item ${selectedOccurrence === result.id ? 'selected' : ''}`}
-                                            onClick={() => handleOccurrenceChange({ target: { value: result.id } })}
-                                            style={{ cursor: 'pointer' }}
-                                        >
-                                            <div className='result-page'>Page {result.page}</div>
-                                            <div className='result-occurrence'>{result.highlight}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                        {searchResults.length === 0 && (
-                            <div className='no-results'>
-                                <p>No search results yet.</p>
-                                <p className='text-muted'>Enter a search term and click "Search"</p>
-                            </div>
-                        )}
-                    </div>
+            {/* Header */}
 
-                    {/* Footer - Clear Button */}
-                    <div className='command-footer'>
-                        <button className='clear-button' onClick={handleClear}>
-                            Clear
-                        </button>
-                    </div>
-                </div>
+            <div className="command-header">
+
+                <input
+                    type="text"
+                    className="search-input"
+                    placeholder="Enter search text..."
+                    value={searchWord}
+                    onChange={(e) => setSearchWord(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                            handleSearch();
+                        }
+                    }}
+                />
+
+                <button
+                    className="search-button"
+                    onClick={handleSearch}
+                >
+                    Search
+                </button>
 
             </div>
+
+            {/* Results */}
+
+            <div className="command-content">
+
+                {searchResults.length > 0 ? (
+                    <>
+                        <div className="results-count">
+                            {searchResults.length} hits
+                        </div>
+
+                        <div className="results-list">
+
+                            {searchResults.map((result) => (
+
+                                <div
+                                    key={result.id}
+                                    className={`result-item ${selectedOccurrence === result.id
+                                            ? "selected"
+                                            : ""
+                                        }`}
+                                    onClick={() =>
+                                        handleOccurrenceClick(result.index)
+                                    }
+                                >
+
+                                    <div className="result-title">
+                                        Occurrence {result.index + 1}
+                                    </div>
+
+                                    <div className="result-paragraph">
+                                        {result.text}
+                                    </div>
+
+                                </div>
+
+                            ))}
+
+                        </div>
+                    </>
+                ) : (
+                    <div className="no-results">
+                        <p>No search results found.</p>
+                        <p className="text-muted">
+                            Enter text and click Search.
+                        </p>
+                    </div>
+                )}
+
+            </div>
+
+            {/* Footer */}
+
+            <div className="command-footer">
+
+                <button
+                    className="clear-button"
+                    onClick={handleClear}
+                >
+                    Clear
+                </button>
+
+            </div>
+
+        </div>
     );
 }

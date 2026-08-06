@@ -110,14 +110,29 @@
 .result-item {
   padding: 12px;
   background-color: #ffffff;
-  border-left: 4px solid #1f73d4;
-  border-radius: 2px;
+  border-left: 4px solid transparent;
+  border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  border: 1px solid #ececec;
 }
 
+/* Hover State */
 .result-item:hover {
-  background-color: #f8f9fa;
+  border-left: 4px solid #1f73d4;
+  background-color: #f4f9ff;
+}
+
+/* Selected State */
+.result-item.selected {
+  border-left: 4px solid #1f73d4;
+  background-color: #e8f2ff;
+  box-shadow: 0 0 0 1px rgba(31, 115, 212, 0.2);
+}
+
+/* Optional: stronger selected hover */
+.result-item.selected:hover {
+  background-color: #dcecff;
 }
 
 .result-page {

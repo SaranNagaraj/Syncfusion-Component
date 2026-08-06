@@ -44,16 +44,6 @@ function App() {
       <main className="viewer-container">
         {renderViewer()}
       </main>
-{/* 
-      <RightPanel
-        searchText={searchText}
-        setSearchText={setSearchText}
-        hitCount={results.length}
-        results={results}
-        onSearch={handleSearch}
-        onResultClick={handleResultClick}
-      /> */}
-      {/* <PdfViewerSidePanel /> */}
 
     </div>
   );
