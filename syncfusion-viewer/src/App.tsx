@@ -4,7 +4,7 @@ import Sidebar from "./components/Sidebar";
 
 import DocxEditor from "./components/viewers/DocxEditor";
 import PresentationViewer from "./components/viewers/PresentationViewer";
-import SpreadsheetViewer from "./components/viewers/SpreadsheetViewer";
+import SpreadsheetEditor from "./components/viewers/SpreadsheetEditor";
 import PdfViewer from "./components/viewers/PdfViewer";
 import "./App.css"
 
@@ -23,7 +23,7 @@ function App() {
         return <PresentationViewer />;
 
       case "spreadsheet":
-        return <SpreadsheetViewer />;
+        return <SpreadsheetEditor />;
 
       case "pdf":
         return <PdfViewer />;
