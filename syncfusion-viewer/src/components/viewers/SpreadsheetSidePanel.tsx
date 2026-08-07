@@ -18,6 +18,8 @@ const SpreadsheetSidePanel = forwardRef<
         if (searchWord) {
             let data: any = spreadsheetRef.current?.findAll(searchWord, "Workbook");
             setSearchResults(data);
+        } else if (searchResults && searchResults.length) {
+            handleClear();
         }
     };
 
