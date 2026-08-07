@@ -36,9 +36,9 @@ const SpreadsheetSidePanel = forwardRef<
     };
 
     return (
-        <div >
+        <div>
             {/* Right Panel - Command Panel */}
-            <div className='command-panel'>
+            <div className='command-panel' style={{ minWidth: 0, minHeight: 0 }}>
                 {/* Header - Search Input and Button */}
                 <div className='command-header'>
                     <input

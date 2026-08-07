@@ -5,6 +5,10 @@ import {
 } from '@syncfusion/ej2-react-documenteditor';
 import "./DocxEditor.css"
 import DocxEditorSidePanel from "./DocxEditorSidePanel";
+import { registerLicense } from '@syncfusion/ej2-base';
+
+// Registering Syncfusion license key
+registerLicense('Ngo9BigBOggjHTQxAR8/V1JAaF5cX2pCdkx3R3xbf1x2ZFxMZFVbRXdPMyBoS35RcEVrWXheeXdRQ2leWUxyVEFZ');
 
 DocumentEditorContainerComponent.Inject(Toolbar, Ribbon, Search);
 
@@ -20,7 +24,7 @@ const DocxEditor = () => {
     }, []);
 
     return (
-        <div className="docx-layout">
+        <div className="docx-layout" >
             <div className='docx-viewer-panel'>
                 <DocumentEditorContainerComponent
                     id="container"

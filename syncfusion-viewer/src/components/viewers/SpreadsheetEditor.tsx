@@ -21,7 +21,7 @@ const sidePanelRef = useRef<{ findRecord: () => void }>(null);
   }
   
   return (
-    <div className='control-section'>
+    <div className='spreadsheet-layout'>
       <div className='spreadsheet-viewer-panel'>
         <SpreadsheetComponent
           ref={spreadsheetRef}

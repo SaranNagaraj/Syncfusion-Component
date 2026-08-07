@@ -1,19 +1,25 @@
-@import '@syncfusion/ej2-base/styles/tailwind3.css';
-@import '@syncfusion/ej2-inputs/styles/tailwind3.css';
-@import '@syncfusion/ej2-buttons/styles/tailwind3.css';
-@import '@syncfusion/ej2-splitbuttons/styles/tailwind3.css';
-@import '@syncfusion/ej2-lists/styles/tailwind3.css';
-@import '@syncfusion/ej2-navigations/styles/tailwind3.css';
-@import '@syncfusion/ej2-popups/styles/tailwind3.css';
-@import '@syncfusion/ej2-dropdowns/styles/tailwind3.css';
-@import '@syncfusion/ej2-grids/styles/tailwind3.css';
-@import '@syncfusion/ej2-react-spreadsheet/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-base/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-inputs/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-buttons/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-splitbuttons/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-lists/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-navigations/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-popups/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-dropdowns/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-grids/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-react-spreadsheet/styles/tailwind3.css';
 
 
-/* Top-level row layout (matches DocxEditor pattern) */
+/* Top-level row layout (matches PdfViewer pattern) */
 .control-section {
   display: flex;
   height: calc(100vh - 20px); /* adjust as needed */
+  overflow: hidden;
+}
+
+.spreadsheet-layout {
+  display: flex;
+  height: calc(100vh - 20px);
   overflow: hidden;
 }
 
@@ -23,7 +29,6 @@
   min-width: 0;
   min-height: 0;
   overflow: hidden;
-  position: relative;
 }
 
 .spreadsheet-viewer-panel #container {

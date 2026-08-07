@@ -106,7 +106,7 @@ export default function DocxEditorSidePanel({
         const editorContainer = docxEditorRef.current;
 
         if (editorContainer) {
-             if( editorContainer.documentEditor.search.searchResults.length > 0) {
+            if (editorContainer.documentEditor.search.searchResults.length > 0) {
                 editorContainer.documentEditor.selection.moveToPreviousCharacter();
             }
             editorContainer.documentEditor.search.searchResults.clear();
@@ -118,97 +118,98 @@ export default function DocxEditorSidePanel({
     };
 
     return (
-        <div className="command-panel">
+        <div>
+            <div className="command-panel">
 
-            {/* Header */}
+                {/* Header */}
 
-            <div className="command-header">
+                <div className="command-header">
 
-                <input
-                    type="text"
-                    className="search-input"
-                    placeholder="Enter search text..."
-                    value={searchWord}
-                    onChange={(e) => setSearchWord(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            handleSearch();
-                        }
-                    }}
-                />
+                    <input
+                        type="text"
+                        className="search-input"
+                        placeholder="Enter search text..."
+                        value={searchWord}
+                        onChange={(e) => setSearchWord(e.target.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                                handleSearch();
+                            }
+                        }}
+                    />
 
-                <button
-                    className="search-button"
-                    onClick={handleSearch}
-                >
-                    Search
-                </button>
+                    <button
+                        className="search-button"
+                        onClick={handleSearch}
+                    >
+                        Search
+                    </button>
 
-            </div>
+                </div>
 
-            {/* Results */}
+                {/* Results */}
 
-            <div className="command-content">
+                <div className="command-content">
 
-                {searchResults.length > 0 ? (
-                    <>
-                        <div className="results-count">
-                            {searchResults.length} Occurrences
-                        </div>
+                    {searchResults.length > 0 ? (
+                        <>
+                            <div className="results-count">
+                                {searchResults.length} Occurrences
+                            </div>
 
-                        <div className="results-list">
+                            <div className="results-list">
 
-                            {searchResults.map((result) => (
+                                {searchResults.map((result) => (
 
-                                <div
-                                    key={result.id}
-                                    className={`result-item ${selectedOccurrence === result.id
+                                    <div
+                                        key={result.id}
+                                        className={`result-item ${selectedOccurrence === result.id
                                             ? "selected"
                                             : ""
-                                        }`}
-                                    onClick={() =>
-                                        handleOccurrenceClick(result.index)
-                                    }
-                                >
+                                            }`}
+                                        onClick={() =>
+                                            handleOccurrenceClick(result.index)
+                                        }
+                                    >
 
-                                    <div className="result-title">
-                                        Occurrence {result.index + 1}
+                                        <div className="result-title">
+                                            Occurrence {result.index + 1}
+                                        </div>
+
+                                        <div className="result-paragraph">
+                                            {result.text}
+                                        </div>
+
                                     </div>
 
-                                    <div className="result-paragraph">
-                                        {result.text}
-                                    </div>
+                                ))}
 
-                                </div>
-
-                            ))}
-
+                            </div>
+                        </>
+                    ) : (
+                        <div className="no-results">
+                            <p>No search results found.</p>
+                            <p className="text-muted">
+                                Enter text and click Search.
+                            </p>
                         </div>
-                    </>
-                ) : (
-                    <div className="no-results">
-                        <p>No search results found.</p>
-                        <p className="text-muted">
-                            Enter text and click Search.
-                        </p>
-                    </div>
-                )}
+                    )}
 
+                </div>
+
+                {/* Footer */}
+
+                <div className="command-footer">
+
+                    <button
+                        className="clear-button"
+                        onClick={handleClear}
+                    >
+                        Clear
+                    </button>
+
+                </div>
             </div>
-
-            {/* Footer */}
-
-            <div className="command-footer">
-
-                <button
-                    className="clear-button"
-                    onClick={handleClear}
-                >
-                    Clear
-                </button>
-
-            </div>
-
         </div>
     );
 }
