@@ -106,7 +106,10 @@ export default function DocxEditorSidePanel({
         const editorContainer = docxEditorRef.current;
 
         if (editorContainer) {
-            editorContainer.documentEditor.search.clearSearchHighlight();
+             if( editorContainer.documentEditor.search.searchResults.length > 0) {
+                editorContainer.documentEditor.selection.moveToPreviousCharacter();
+            }
+            editorContainer.documentEditor.search.searchResults.clear();
         }
 
         setSearchWord("");

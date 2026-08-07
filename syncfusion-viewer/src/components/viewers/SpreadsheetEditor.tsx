@@ -27,8 +27,8 @@ const sidePanelRef = useRef<{ findRecord: () => void }>(null);
           ref={spreadsheetRef}
           height="100%"
           width="100%"
-          openUrl="https://document.syncfusion.com/web-services/spreadsheet-editor/api/spreadsheet/open"
-          saveUrl="https://document.syncfusion.com/web-services/spreadsheet-editor/api/spreadsheet/save"
+          openUrl="http://127.0.0.1:5000/OpenExcel"
+          saveUrl="http://127.0.0.1:5000/SaveExcel"
           created={onCreated.bind(this)}
           openComplete = {openComplete}
           >

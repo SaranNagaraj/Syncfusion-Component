@@ -17,7 +17,7 @@ const Sidebar: React.FC<Props> = ({
         className={selected === "docx" ? "active" : ""}
         onClick={() => onSelect("docx")}
       >
-        DOCX Editor
+        Word Document
       </button>
 
       <button
