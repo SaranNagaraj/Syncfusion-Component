@@ -35,7 +35,6 @@ export default function DocxEditorSidePanel({
             documentEditor.search.findAll(searchWord);
 
             const results = documentEditor.search.searchResults;
-            const offsets = results.getTextSearchResultsOffset();
 
             const occurrences: SearchOccurrence[] = [];
 
@@ -44,13 +43,6 @@ export default function DocxEditorSidePanel({
                 let paragraphText = searchWord;
 
                 try {
-                    const offset = offsets[i];
-
-                    documentEditor.selection.select(
-                        offset.startOffset,
-                        offset.endOffset
-                    );
-
                     paragraphText =
                         documentEditor.selection.text ||
                         searchWord;
@@ -158,7 +150,7 @@ export default function DocxEditorSidePanel({
                 {searchResults.length > 0 ? (
                     <>
                         <div className="results-count">
-                            {searchResults.length} hits
+                            {searchResults.length} Occurrences
                         </div>
 
                         <div className="results-list">
