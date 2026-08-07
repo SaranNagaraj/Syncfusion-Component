@@ -17,7 +17,7 @@ const PdfViewer = () => {
                     id="container"
                     height="100%"
                     documentPath="https://cdn.syncfusion.com/content/pdf/pdf-succinctly.pdf"
-                    resourceUrl="https://cdn.syncfusion.com/ej2/34.2.2/dist/ej2-pdfviewer-lib">
+                    resourceUrl="https://cdn.syncfusion.com/ej2/33.2.15/dist/ej2-pdfviewer-lib">
                     <Inject services={[Toolbar, Magnification, Navigation, Annotation, LinkAnnotation,
                         BookmarkView, ThumbnailView, Print, TextSelection, TextSearch,
                         FormFields, FormDesigner, PageOrganizer]} />

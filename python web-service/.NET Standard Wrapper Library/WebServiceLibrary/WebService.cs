@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Syncfusion.EJ2.Spreadsheet;
-using Syncfusion.XlsIO;
+using System.Text;
 using Syncfusion.EJ2.DocumentEditor;
+using Syncfusion.EJ2.Spreadsheet;
+using Syncfusion.Pdf;
+using Syncfusion.Presentation;
+using Syncfusion.PresentationRenderer;
+using Syncfusion.XlsIO;
 using WDocument = Syncfusion.DocIO.DLS.WordDocument;
 using WFormatType = Syncfusion.DocIO.FormatType;
-
 
 namespace WebServiceLibrary
 {
@@ -93,7 +97,7 @@ namespace WebServiceLibrary
             return Newtonsoft.Json.JsonConvert.SerializeObject(result);
         }
 
-        internal static FormatType GetFormatType(string format)
+        internal static Syncfusion.EJ2.DocumentEditor.FormatType GetFormatType(string format)
         {
             if (string.IsNullOrEmpty(format))
                 throw new NotSupportedException("EJ2 DocumentEditor does not support this file format.");
@@ -103,18 +107,18 @@ namespace WebServiceLibrary
                 case ".docx":
                 case ".docm":
                 case ".dotm":
-                    return FormatType.Docx;
+                    return Syncfusion.EJ2.DocumentEditor.FormatType.Docx;
                 case ".dot":
                 case ".doc":
-                    return FormatType.Doc;
+                    return Syncfusion.EJ2.DocumentEditor.FormatType.Doc;
                 case ".rtf":
-                    return FormatType.Rtf;
+                    return Syncfusion.EJ2.DocumentEditor.FormatType.Rtf;
                 case ".txt":
-                    return FormatType.Txt;
+                    return Syncfusion.EJ2.DocumentEditor.FormatType.Txt;
                 case ".xml":
-                    return FormatType.WordML;
+                    return Syncfusion.EJ2.DocumentEditor.FormatType.WordML;
                 case ".html":
-                    return FormatType.Html;
+                    return Syncfusion.EJ2.DocumentEditor.FormatType.Html;
                 default:
                     throw new NotSupportedException("EJ2 DocumentEditor does not support this file format.");
             }
@@ -177,6 +181,63 @@ namespace WebServiceLibrary
         public Stream Save(SaveSettings settings)
         {
             return Workbook.Save<Stream>(settings);
+        }
+        #endregion
+
+        #region presentation APIs
+        public PresentationResult PPTLoadFile(string base64data)
+        {
+            if (base64data != string.Empty)
+            {
+
+                string base64 = base64data;
+                //string fileName = args.FileData[0].Name; 
+                string data = base64.Split(',')[1];
+                byte[] bytes = Convert.FromBase64String(data);
+                var outputStream = new MemoryStream();
+                string base64String;
+                var speakerNotes = new Dictionary<int, string>();
+                using (Stream stream = new MemoryStream(bytes))
+                {
+                    IPresentation pptxDoc = Presentation.Open(stream);
+                    PresentationToPdfConverterSettings pdfConverterSettings = new PresentationToPdfConverterSettings();
+                    pdfConverterSettings.PublishOptions = PublishOptions.NotesPages;
+                    for (int i = 0; i < pptxDoc.Slides.Count; i++)
+                    {
+                        ISlide slide = pptxDoc.Slides[i];
+                        StringBuilder textBuilder = new StringBuilder();
+                        if (slide.NotesSlide?.NotesTextBody != null)
+                        {
+                            foreach (IParagraph paragraph in slide.NotesSlide.NotesTextBody.Paragraphs)
+                            {
+                                textBuilder.AppendLine(paragraph.Text);
+                            }
+                            speakerNotes.Add(i + 1, textBuilder.ToString().Trim());
+                        }
+                    }
+                    using (PdfDocument pdfDoc = PresentationToPdfConverter.Convert(pptxDoc, pdfConverterSettings))
+                    {
+                        pptxDoc.Close();
+                        pdfDoc.Save(outputStream);
+                        outputStream.Position = 0;
+                        byte[] byteArray = outputStream.ToArray();
+                        pdfDoc.Close();
+                        outputStream.Close();
+                        base64String = Convert.ToBase64String(byteArray);
+                    }
+                    return new PresentationResult
+                    {
+                        PdfBase64 = "data:application/pdf;base64," + base64String,
+                        SpeakerNotes = speakerNotes
+                    };
+                }
+            }
+            return null;
+        }
+        public class PresentationResult
+        {
+            public string PdfBase64 { get; set; }
+            public Dictionary<int, string> SpeakerNotes { get; set; }
         }
         #endregion
     }

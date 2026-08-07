@@ -43,7 +43,17 @@ clr.AddReference(current_working_directory + "/.NET Standard Wrapper Library/Web
 
 # Load explicit DLLs from the publish folder (direct AddReference calls)
 publish_base = current_working_directory + "/.NET Standard Wrapper Library/WebServiceLibrary/bin/Release/netstandard2.0/publish/"
+runtimes_base = current_working_directory + "/.NET Standard Wrapper Library/WebServiceLibrary/runtimes/"
 
+runtime_dirs = [
+    os.path.join(runtimes_base, "win-x64", "native")
+]
+
+for runtime_dir in runtime_dirs:
+    if os.path.exists(runtime_dir):
+        os.environ["PATH"] = (
+            runtime_dir + os.pathsep + os.environ["PATH"]
+        )
 
 clr.AddReference(publish_base + "Syncfusion.EJ2.Spreadsheet.dll")
 clr.AddReference(publish_base + "BitMiracle.LibTiff.NET.dll")
@@ -73,6 +83,8 @@ clr.AddReference(publish_base + "System.Threading.Tasks.Extensions.dll")
 clr.AddReference(publish_base + "Microsoft.AspNetCore.Mvc.Core.dll")
 clr.AddReference(publish_base + "Microsoft.AspNetCore.Mvc.Abstractions.dll")
 clr.AddReference(publish_base + "Microsoft.AspNetCore.Razor.dll")
+clr.AddReference(publish_base + "Syncfusion.Presentation.Portable.dll")
+clr.AddReference(publish_base + "Syncfusion.PresentationRenderer.Portable.dll")
 
 #import our Documenteditor class from our C# namespace DocumentEditorLibrary
 from WebServiceLibrary import WebService
@@ -201,6 +213,29 @@ def saveExcel():
         error_msg = f"Error saving file: {str(e)}\n{traceback.format_exc()}"
         print(error_msg)
         return error_msg, 500
+
+
+SyncfusionLicenseProvider.RegisterLicense("Enter your license key here")
+
+presentationLib = WebService() #create our Presentation object
+
+@app.route('/PPTLoadFile', methods=['POST'])
+def pptLoadFile():
+    content = request.json['data']
+    result = presentationLib.PPTLoadFile(content)
+    if result is None:
+        return {"error": "Invalid input"}, 400
+    speaker_notes = {}
+    for item in result.SpeakerNotes:
+        speaker_notes[str(item.Key)] = item.Value
+    response = {
+        "pdfBase64": result.PdfBase64,
+        "speakerNotes": speaker_notes
+    }
+    return app.response_class(
+        response=json.dumps(response),
+        mimetype='application/json'
+    )
 
 @app.route("/")
 def home():
