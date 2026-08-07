@@ -12,6 +12,7 @@ namespace WebServiceLibrary
 {
     public class WebService
     {
+        #region Document Editor APIs
         public string Import(byte[] byteArr, string fileName)
         {
             try
@@ -150,8 +151,9 @@ namespace WebServiceLibrary
                     throw new NotSupportedException("EJ2 DocumentEditor does not support this file format.");
             }
         }
+        #endregion
 
-        // SpreadSheet component API endpoint to open the workbook and convert it into JSON format.
+        #region Spreadsheet APIs
         public string Open(byte[] byteArr)
         {
             // Loading the bytes array to stream.
@@ -176,5 +178,6 @@ namespace WebServiceLibrary
         {
             return Workbook.Save<Stream>(settings);
         }
+        #endregion
     }
 }

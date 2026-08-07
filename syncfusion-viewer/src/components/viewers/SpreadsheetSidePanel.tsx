@@ -10,7 +10,7 @@ const SpreadsheetSidePanel = forwardRef<
     { findRecord: () => void },
     Props
 >(({ spreadsheetRef }, ref) => {
-    const [searchWord, setSearchWord] = useState('Ava Wilson');
+    const [searchWord, setSearchWord] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedOccurrence, setSelectedOccurrence] = useState(null);
 
