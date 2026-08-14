@@ -1,215 +1,162 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./DocxEditor.css";
 
 interface Props {
     docxEditorRef: React.RefObject<any>;
 }
 
-interface SearchOccurrence {
-    id: string;
-    index: number;
-    text: string;
+interface Finding {
+    bookmark: string;
+    pageNumber: number;
+    preview: string;
 }
+
+const PARAGRAPHS = [
+    {
+        bookmark: "Bookmark_1",
+        text:
+            "While most adore their fluffy fur and round heads, which help give them their cuddly bear quality, others are fascinated by the many mysteries of the giant panda."
+    },
+    {
+        bookmark: "Bookmark_2",
+        text:
+            "DNA analysis has put one mystery to rest. It has revealed that while the red panda is a distant relation, the giant panda's closest relative is the spectacled bear from South America."
+    },
+    {
+        bookmark: "Bookmark_3",
+        text:
+            "Researchers have recently discovered that the gene responsible for tasting savory or umami flavors, such as meat, is inactive in giant pandas."
+    }
+];
 
 export default function DocxEditorSidePanel({
     docxEditorRef
 }: Props) {
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [findings, setFindings] = useState<Finding[]>([]);
 
-    const [searchWord, setSearchWord] = useState("");
-    const [searchResults, setSearchResults] = useState<SearchOccurrence[]>([]);
-    const [selectedOccurrence, setSelectedOccurrence] = useState("");
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            createBookmarks();
+        }, 1000);
 
-    const handleSearch = () => {
+        return () => clearTimeout(timer);
+    }, []);
 
-        const editorContainer = docxEditorRef.current;
+    const getPreview = (text: string) => {
+        return text.split(" ").slice(0, 8).join(" ") + "...";
+    };
 
-        if (!editorContainer || !searchWord.trim()) {
-            setSearchResults([]);
+    const createBookmarks = () => {
+        const editor = docxEditorRef.current?.documentEditor;
+
+        if (!editor) {
             return;
         }
 
-        const documentEditor = editorContainer.documentEditor;
+        editor.editor.stopProtection('123');
 
-        try {
+        const data: Finding[] = [];
 
-            documentEditor.search.findAll(searchWord);
+        PARAGRAPHS.forEach((item) => {
+            editor.search.findAll(item.text);
 
-            const results = documentEditor.search.searchResults;
+            const results = editor.search.searchResults;
 
-            const occurrences: SearchOccurrence[] = [];
+            if (results.length > 0) {
+                results.index = 0;
 
-            for (let i = 0; i < results.length; i++) {
+                // Select the found text
+                editor.search.navigate(results.index);
 
-                let paragraphText = searchWord;
+                // Get page number
+                const pageNumber = editor.selection.startPage;
 
-                try {
-                    paragraphText =
-                        documentEditor.selection.text ||
-                        searchWord;
-                } catch (e) {
-                    console.log(e);
-                }
+                // Highlight
+                editor.selection.characterFormat.highlightColor =
+                    "Yellow";
 
-                occurrences.push({
-                    id: `result-${i}`,
-                    index: i,
-                    text: paragraphText
+                // Bookmark
+                editor.editor.insertBookmark(item.bookmark);
+
+                data.push({
+                    bookmark: item.bookmark,
+                    pageNumber,
+                    preview: getPreview(item.text)
                 });
             }
 
-            setSearchResults(occurrences);
+            results.clear();
+        });
 
-            if (occurrences.length > 0) {
-                handleOccurrenceClick(0);
-            }
+        editor.selection.moveToDocumentStart()
 
-        } catch (error) {
-            console.error("Search error:", error);
-            setSearchResults([]);
-        }
+        setFindings(data);
+
     };
 
-    const handleOccurrenceClick = (index: number) => {
+    const navigateToBookmark = (
+        bookmark: string,
+        index: number
+    ) => {
+        const editor = docxEditorRef.current?.documentEditor;
 
-        const editorContainer = docxEditorRef.current;
-
-        if (!editorContainer) {
+        if (!editor) {
             return;
         }
 
-        const documentEditor = editorContainer.documentEditor;
-        const results = documentEditor.search.searchResults;
+        editor.selection.selectBookmark(bookmark);
+        setActiveIndex(index);
+    };
 
-        if (!results || index >= results.length) {
-            return;
-        }
+    const nextHighlight = () => {
+        const nextIndex =
+            (activeIndex + 1) % findings.length;
 
-        const offsets =
-            results.getTextSearchResultsOffset();
-
-        if (!offsets || !offsets[index]) {
-            return;
-        }
-
-        const selectedOffset = offsets[index];
-
-        setSelectedOccurrence(`result-${index}`);
-
-        documentEditor.selection.select(
-            selectedOffset.startOffset,
-            selectedOffset.endOffset
+        navigateToBookmark(
+            findings[nextIndex].bookmark,
+            nextIndex
         );
     };
 
-    const handleClear = () => {
-
-        const editorContainer = docxEditorRef.current;
-
-        if (editorContainer) {
-            if (editorContainer.documentEditor.search.searchResults.length > 0) {
-                editorContainer.documentEditor.selection.moveToPreviousCharacter();
-            }
-            editorContainer.documentEditor.search.searchResults.clear();
-        }
-
-        setSearchWord("");
-        setSearchResults([]);
-        setSelectedOccurrence("");
-    };
-
     return (
-        <div>
-            <div className="command-panel">
+        <div className="findings-panel">
+            <h3>Findings in document</h3>
 
-                {/* Header */}
-
-                <div className="command-header">
-
-                    <input
-                        type="text"
-                        className="search-input"
-                        placeholder="Enter search text..."
-                        value={searchWord}
-                        onChange={(e) => setSearchWord(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                handleSearch();
-                            }
-                        }}
-                    />
-
-                    <button
-                        className="search-button"
-                        onClick={handleSearch}
-                    >
-                        Search
-                    </button>
-
-                </div>
-
-                {/* Results */}
-
-                <div className="command-content">
-
-                    {searchResults.length > 0 ? (
-                        <>
-                            <div className="results-count">
-                                {searchResults.length} Occurrences
-                            </div>
-
-                            <div className="results-list">
-
-                                {searchResults.map((result) => (
-
-                                    <div
-                                        key={result.id}
-                                        className={`result-item ${selectedOccurrence === result.id
-                                            ? "selected"
-                                            : ""
-                                            }`}
-                                        onClick={() =>
-                                            handleOccurrenceClick(result.index)
-                                        }
-                                    >
-
-                                        <div className="result-title">
-                                            Occurrence {result.index + 1}
-                                        </div>
-
-                                        <div className="result-paragraph">
-                                            {result.text}
-                                        </div>
-
-                                    </div>
-
-                                ))}
-
-                            </div>
-                        </>
-                    ) : (
-                        <div className="no-results">
-                            <p>No search results found.</p>
-                            <p className="text-muted">
-                                Enter text and click Search.
-                            </p>
-                        </div>
-                    )}
-
-                </div>
-
-                {/* Footer */}
-
-                <div className="command-footer">
-
-                    <button
-                        className="clear-button"
-                        onClick={handleClear}
-                    >
-                        Clear
-                    </button>
-
-                </div>
+            <div className="hits-count">
+                {findings.length} hits
             </div>
+
+            <div className="divider"></div>
+
+            {findings.map((item, index) => (
+                <div
+                    key={item.bookmark}
+                    className={`finding-card ${activeIndex === index ? "active" : ""
+                        }`}
+                    onClick={() =>
+                        navigateToBookmark(
+                            item.bookmark,
+                            index
+                        )
+                    }
+                >
+                    <div className="result-page">
+                        Page {item.pageNumber}
+                    </div>
+
+                    <div className="result-highlight">
+                        {item.preview}
+                    </div>
+                </div>
+            ))}
+
+            <button
+                className="action-button"
+                onClick={nextHighlight}
+            >
+                Next Highlight →
+            </button>
         </div>
     );
 }
