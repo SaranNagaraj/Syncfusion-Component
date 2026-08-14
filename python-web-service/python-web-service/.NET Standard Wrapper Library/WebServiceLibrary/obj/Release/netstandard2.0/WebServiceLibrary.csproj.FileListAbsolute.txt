@@ -1,0 +1,10 @@
+C:\Users\SujithaSiva\Downloads\python-web-service 1\python-web-service\.NET Standard Wrapper Library\WebServiceLibrary\bin\Release\netstandard2.0\WebServiceLibrary.deps.json
+C:\Users\SujithaSiva\Downloads\python-web-service 1\python-web-service\.NET Standard Wrapper Library\WebServiceLibrary\bin\Release\netstandard2.0\WebServiceLibrary.dll
+C:\Users\SujithaSiva\Downloads\python-web-service 1\python-web-service\.NET Standard Wrapper Library\WebServiceLibrary\bin\Release\netstandard2.0\WebServiceLibrary.pdb
+C:\Users\SujithaSiva\Downloads\python-web-service 1\python-web-service\.NET Standard Wrapper Library\WebServiceLibrary\obj\Release\netstandard2.0\WebServiceLibrary.csproj.AssemblyReference.cache
+C:\Users\SujithaSiva\Downloads\python-web-service 1\python-web-service\.NET Standard Wrapper Library\WebServiceLibrary\obj\Release\netstandard2.0\WebServiceLibrary.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\SujithaSiva\Downloads\python-web-service 1\python-web-service\.NET Standard Wrapper Library\WebServiceLibrary\obj\Release\netstandard2.0\WebServiceLibrary.AssemblyInfoInputs.cache
+C:\Users\SujithaSiva\Downloads\python-web-service 1\python-web-service\.NET Standard Wrapper Library\WebServiceLibrary\obj\Release\netstandard2.0\WebServiceLibrary.AssemblyInfo.cs
+C:\Users\SujithaSiva\Downloads\python-web-service 1\python-web-service\.NET Standard Wrapper Library\WebServiceLibrary\obj\Release\netstandard2.0\WebServiceLibrary.csproj.CoreCompileInputs.cache
+C:\Users\SujithaSiva\Downloads\python-web-service 1\python-web-service\.NET Standard Wrapper Library\WebServiceLibrary\obj\Release\netstandard2.0\WebServiceLibrary.dll
+C:\Users\SujithaSiva\Downloads\python-web-service 1\python-web-service\.NET Standard Wrapper Library\WebServiceLibrary\obj\Release\netstandard2.0\WebServiceLibrary.pdb

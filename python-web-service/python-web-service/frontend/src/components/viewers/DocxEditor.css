@@ -1,0 +1,200 @@
+@import '../../../node_modules/@syncfusion/ej2-base/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-buttons/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-inputs/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-popups/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-lists/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-navigations/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-splitbuttons/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-dropdowns/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-react-documenteditor/styles/tailwind3.css';
+@import '../../../node_modules/@syncfusion/ej2-ribbon/styles/tailwind3.css';/* Required for Ribbon */
+
+
+.docx-layout {
+    display: flex;
+    height: calc(100vh - 20px); /* adjust as needed */
+    overflow: hidden;
+}
+
+.docx-viewer-panel {
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+}
+
+.command-panel {
+    width: 320px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid #ddd;
+    background: #fff;
+    overflow: hidden;
+}
+
+/* Command Header */
+.command-header {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background-color: #ffffff;
+}
+
+.search-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #0078d4;
+  box-shadow: 0 0 0 3px rgba(0, 120, 212, 0.1);
+}
+
+.search-button {
+  padding: 10px 16px;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.search-button:hover {
+  background-color: #106ebe;
+}
+
+.search-button:active {
+  background-color: #0d5ba7;
+}
+
+/* Command Content */
+.command-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0; /* Important */
+  padding: 16px;
+  background-color: #fafafa;
+}
+
+.results-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #202124;
+}
+
+.results-count {
+  font-size: 16px;
+  color: #5f6368;
+  margin-bottom: 16px;
+  font-weight: bold;
+}
+
+.results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.result-item {
+  padding: 12px;
+  background-color: #ffffff;
+  border-left: 4px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid #ececec;
+}
+
+/* Hover State */
+.result-item:hover {
+  border-left: 4px solid #1f73d4;
+  background-color: #f4f9ff;
+}
+
+/* Selected State */
+.result-item.selected {
+  border-left: 4px solid #1f73d4;
+  background-color: #e8f2ff;
+  box-shadow: 0 0 0 1px rgba(31, 115, 212, 0.2);
+}
+
+/* Optional: stronger selected hover */
+.result-item.selected:hover {
+  background-color: #dcecff;
+}
+
+.result-page {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1f73d4;
+  margin-bottom: 4px;
+}
+
+.result-highlight {
+  font-size: 13px;
+  color: #5f6368;
+  line-height: 1.4;
+}
+
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #5f6368;
+}
+
+.no-results p {
+  margin: 4px 0;
+  font-size: 13px;
+}
+
+.no-results .text-muted {
+  color: #9aa0a6;
+  font-size: 12px;
+}
+
+/* Command Footer */
+.command-footer {
+  padding: 16px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #ffffff;
+  display: flex;
+  gap: 8px;
+}
+
+.clear-button {
+  flex: 1;
+  padding: 10px 16px;
+  background-color: #f3f3f3;
+  color: #333333;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.clear-button:hover {
+  background-color: #e8e8e8;
+  border-color: #b3b3b3;
+}
+
+.clear-button:active {
+  background-color: #d9d9d9;
+}
