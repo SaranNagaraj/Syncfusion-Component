@@ -1,123 +1,106 @@
 import React from "react";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import "./PdfViewer.css"
 
 interface Props {
     pdfViewerRef: React.RefObject<any>;
 }
 
+// 3 default search terms with custom titles
+const DEFAULT_SEARCH_TERMS = [
+    {
+        title: 'Cross-Reference Table',
+        searchTerm: 'After the header and the body comes the cross-reference table. It records the byte location of each object in the body of the file. This enables random-access of the document, so when rendering a page, only the objects required for that page are read from the file'
+    },
+    {
+        title: 'Positioning Operators',
+        searchTerm: 'Positioning operators determine where new text will be inserted. Remember, PDFs are a rather low-level method for representing documents. It\'s not possible to define the width of a paragraph and have the PDF document fill it in until it runs out of text. As we saw earlier, PDFs can\'t even line-wrap on their own'
+    },
+    {
+        title: 'iTextSharp Text Objects',
+        searchTerm: 'As we\'ve seen, iTextSharp works on a higher level than PDF text objects. It uses three levels of text objects: chunks, phrases, and paragraphs. These core text objects, along with most of the other available elements, reside in the iTextSharp.text namespace.'
+    }
+];
+
 export default function PdfViewerSidePanel({
     pdfViewerRef
 }: Props) {
-    const [searchWord, setSearchWord] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [addedAnnotationIds, setAddedAnnotationIds] = useState([]);
     const [selectedOccurrence, setSelectedOccurrence] = useState('');
+    const [isLoaded, setIsLoaded] = useState(false);
 
     const px = (pt) => (pt * 96) / 72;
 
-    const handleSearch = async () => {
-        if (!searchWord.trim()) {
-            setSearchResults([]);
-            return;
-        }
-
+    const handleAutoSearch = async () => {
         const viewer = pdfViewerRef.current;
         if (!viewer) return;
 
         try {
-            const results = await viewer.textSearch.findTextAsync(searchWord, false);
-            
-            if (!results || results.length === 0) {
-                setSearchResults([]);
-                return;
-            }
+            const allResults = [];
+            const allAnnotationIds = [];
+            let globalOccurrenceIndex = 1;
 
-            const formattedResults = [];
-            const annotationIds = [];
-            let occurrenceIndex = 1;
-
-            for (const pageResult of results) {
-                if (!pageResult?.bounds?.length) continue;
+            // Search for each of the 3 terms
+            for (const item of DEFAULT_SEARCH_TERMS) {
+                const results = await viewer.textSearch.findTextAsync(item.searchTerm, false);
                 
-                const pageNumber = (pageResult.pageIndex ?? -1) + 1;
-                if (pageNumber < 1) continue;
+                if (!results || results.length === 0) continue;
 
-                const bounds = [];
-                for (const bound of pageResult.bounds) {
-                    bounds.push({
-                        x: px(bound.x),
-                        y: px(bound.y),
-                        width: px(bound.width),
-                        height: px(bound.height)
-                    });
-                }
+                for (const pageResult of results) {
+                    if (!pageResult?.bounds?.length) continue;
+                    
+                    const pageNumber = (pageResult.pageIndex ?? -1) + 1;
+                    if (pageNumber < 1) continue;
 
-                const highlightId = `Highlight_${pageNumber}_${occurrenceIndex}`;
-                
-                viewer.annotation.addAnnotation('Highlight', {
-                    bounds: bounds,
-                    pageNumber: pageNumber,
-                    customData: {
-                        searchId: highlightId
+                    const bounds = [];
+                    for (const bound of pageResult.bounds) {
+                        bounds.push({
+                            x: px(bound.x),
+                            y: px(bound.y),
+                            width: px(bound.width),
+                            height: px(bound.height)
+                        });
                     }
-                });
 
-                annotationIds.push({ pageNumber, annotationId: highlightId });
-                formattedResults.push({
-                    page: pageNumber,
-                    highlight: searchWord,
-                    id: highlightId,
-                    occurrenceIndex: occurrenceIndex
-                });
+                    const highlightId = `Highlight_${pageNumber}_${globalOccurrenceIndex}`;
+                    
+                    viewer.annotation.addAnnotation('Highlight', {
+                        bounds: bounds,
+                        pageNumber: pageNumber,
+                        customData: {
+                            searchId: highlightId
+                        }
+                    });
 
-                occurrenceIndex++;
-            }
+                    allAnnotationIds.push({ pageNumber, annotationId: highlightId });
+                    allResults.push({
+                        page: pageNumber,
+                        title: item.title,
+                        searchTerm: item.searchTerm,
+                        id: highlightId,
+                        occurrenceIndex: globalOccurrenceIndex
+                    });
 
-            setSearchResults(formattedResults);
-            setAddedAnnotationIds(annotationIds);
-            if (formattedResults.length > 0) {
-                const firstResult = formattedResults[0];
-                setSelectedOccurrence(firstResult.id);
-                viewer.navigation.goToPage(firstResult.page);
-                
-                const firstAnnotation = viewer.annotationCollection?.find(
-                    (a) => a.customData?.searchId === firstResult.id
-                );
-                if (firstAnnotation) {
-                    setTimeout(() => {
-                        viewer.annotation.selectAnnotation(firstAnnotation.annotationId);
-                    }, 200);
+                    globalOccurrenceIndex++;
                 }
             }
+
+            setSearchResults(allResults);
+            setAddedAnnotationIds(allAnnotationIds);
         } catch (error) {
-            console.error('Search error:', error);
+            console.error('Auto search error:', error);
             setSearchResults([]);
         }
     };
 
-    const handleClear = () => {
+    // Auto-trigger search when PDF loads
+    useEffect(() => {
         const viewer = pdfViewerRef.current;
-        if (viewer && addedAnnotationIds.length > 0) {
-            addedAnnotationIds.forEach((item) => {
-                try {
-                    const annotation = viewer.annotationCollection?.find(
-                        (a) => a.customData?.searchId === item.annotationId
-                    );
-                    if (annotation) {
-                        viewer.annotation.deleteAnnotationById(annotation.annotationId);
-                    }
-                } catch (e) {
-                    console.log(e);
-                }
-            });
+        viewer.documentLoad = () => {
+            handleAutoSearch()
         }
-        
-        setSearchWord('');
-        setSearchResults([]);
-        setAddedAnnotationIds([]);
-        setSelectedOccurrence('');
-    };
+    }, [pdfViewerRef, isLoaded]);
 
     const handleOccurrenceChange = (event) => {
         const value = event.target.value;
@@ -142,60 +125,57 @@ export default function PdfViewerSidePanel({
     };
 
     return (
-        <div >
-                {/* Right Panel - Command Panel */}
-                <div className='command-panel'>
-                    {/* Header - Search Input and Button */}
-                    <div className='command-header'>
-                        <input
-                            type='text'
-                            className='search-input'
-                            placeholder='Enter search word...'
-                            value={searchWord}
-                            onChange={(e) => setSearchWord(e.target.value)}
-                            onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                        />
-                        <button className='search-button' onClick={handleSearch}>
-                            Search
-                        </button>
-                    </div>
+        <div>
+            {/* Right Panel - Results Display Panel */}
+            <div className='command-panel'>
+                {/* Header - Title */}
+                <div className='command-header'>
+                    <h3 style={{ margin: 0, padding: '10px' }}>Highlights in the document</h3>
+                </div>
 
-                    {/* Content Area - Results/Highlights */}
-                    <div className='command-content'>
-                        {searchResults.length > 0 && (
-                            <>
-                                <div className='results-count'>{searchResults.length} Occurrences</div>
-                                <div className='results-list'>
-                                    {searchResults.map((result, index) => (
-                                        <div 
-                                            key={index} 
-                                            className={`result-item ${selectedOccurrence === result.id ? 'selected' : ''}`}
-                                            onClick={() => handleOccurrenceChange({ target: { value: result.id } })}
-                                            style={{ cursor: 'pointer' }}
-                                        >
-                                            <div className='result-page'>Page {result.page}</div>
-                                            <div className='result-occurrence'>{result.highlight}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                        {searchResults.length === 0 && (
-                            <div className='no-results'>
-                                <p>No search results yet.</p>
-                                <p className='text-muted'>Enter a search term and click "Search"</p>
+                {/* Content Area - Results/Highlights */}
+                <div className='command-content'>
+                    {searchResults.length > 0 && (
+                        <>
+                            <div className='results-count'>
+                                Total Hits: <strong>{searchResults.length}</strong>
                             </div>
-                        )}
-                    </div>
-
-                    {/* Footer - Clear Button */}
-                    <div className='command-footer'>
-                        <button className='clear-button' onClick={handleClear}>
-                            Clear
-                        </button>
-                    </div>
+                            <div className='results-list'>
+                                {searchResults.map((result, index) => (
+                                    <div 
+                                        key={index} 
+                                        className={`result-item ${selectedOccurrence === result.id ? 'selected' : ''}`}
+                                        onClick={() => handleOccurrenceChange({ target: { value: result.id } })}
+                                        style={{
+                                            cursor: 'pointer',
+                                            padding: '12px',
+                                            backgroundColor: selectedOccurrence === result.id ? '#e8f0fe' : '#f9f9f9',
+                                            borderLeft: selectedOccurrence === result.id ? '4px solid #1f73e6' : '4px solid transparent',
+                                            borderRadius: '2px',
+                                            marginBottom: '8px',
+                                            transition: 'all 0.2s'
+                                        }}
+                                    >
+                                        <div className='result-page' style={{ fontSize: '12px', fontWeight: '600', color: '#1f73e6', marginBottom: '8px' }}>
+                                            Page {result.page}
+                                        </div>
+                                        <div className='result-occurrence' style={{ fontSize: '13px', fontWeight: '600', color: '#333' }}>
+                                            {result.title}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
+                    {searchResults.length === 0 && (
+                        <div className='no-results'>
+                            <p>Searching for content...</p>
+                            <p className='text-muted'>The PDF is being scanned for the 3 search terms.</p>
+                        </div>
+                    )}
                 </div>
 
             </div>
+        </div>
     );
 }
