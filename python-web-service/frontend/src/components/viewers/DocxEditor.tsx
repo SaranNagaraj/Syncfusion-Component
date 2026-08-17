@@ -18,6 +18,7 @@ const DocxEditor = () => {
         if (docxEditorRef.current) {
             docxEditorRef.current.documentEditor.open(sfdt);
         }
+
     }, []);
 
     return (
@@ -28,7 +29,7 @@ const DocxEditor = () => {
                     ref={docxEditorRef}
                     height="100%"
                     toolbarMode="Ribbon"
-                    serviceUrl={`${API_BASE}/`}
+                    serviceUrl="{`${API_BASE}/`}"
                     enableToolbar={true}
                 />
             </div>

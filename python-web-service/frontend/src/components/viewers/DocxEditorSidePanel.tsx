@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./DocxEditor.css";
+import { DialogComponent } from "@syncfusion/ej2-react-popups";
 
 interface Props {
     docxEditorRef: React.RefObject<any>;
@@ -14,18 +15,15 @@ interface Finding {
 const PARAGRAPHS = [
     {
         bookmark: "Bookmark_1",
-        text:
-            "While most adore their fluffy fur and round heads, which help give them their cuddly bear quality, others are fascinated by the many mysteries of the giant panda."
+        text: "While most adore their fluffy fur and round heads, which help give them their cuddly bear quality, others are fascinated by the many mysteries of the giant panda."
     },
     {
         bookmark: "Bookmark_2",
-        text:
-            "DNA analysis has put one mystery to rest. It has revealed that while the red panda is a distant relation, the giant panda's closest relative is the spectacled bear from South America."
+        text: "DNA analysis has put one mystery to rest. It has revealed that while the red panda is a distant relation, the giant panda's closest relative is the spectacled bear from South America."
     },
     {
         bookmark: "Bookmark_3",
-        text:
-            "Researchers have recently discovered that the gene responsible for tasting savory or umami flavors, such as meat, is inactive in giant pandas."
+        text: "Researchers have recently discovered that the gene responsible for tasting savory or umami flavors, such as meat, is inactive in giant pandas."
     }
 ];
 
@@ -34,13 +32,131 @@ export default function DocxEditorSidePanel({
 }: Props) {
     const [activeIndex, setActiveIndex] = useState(0);
     const [findings, setFindings] = useState<Finding[]>([]);
+    const [dialogVisible, setDialogVisible] = useState(false);
+    const [selectedText, setSelectedText] = useState("");
+    const [bookmarkList, setBookmarkList] = useState<string[]>([]);
+    const [selectedBookmark, setSelectedBookmark] = useState("");
+    const [startOffset, setStartOffset] = useState("");
+    const [endOffset, setEndOffset] = useState("");
+
+    const dialogRef = useRef<DialogComponent>(null);
 
     useEffect(() => {
         const timer = setTimeout(() => {
             createBookmarks();
         }, 1000);
 
+        const editor = docxEditorRef.current?.documentEditor;
+
+        if (editor) {
+
+            const menuItems = [
+                {
+                    text: "Highlight and Link",
+                    id: "highlight_and_link"
+                }
+            ];
+
+            editor.contextMenu.addCustomMenu(menuItems, false);
+
+            editor.customContextMenuSelect = (args: any) => {
+
+                console.log('Menu Clicked', args);
+
+                if (
+                    args.id === 'highlight_and_link' ||
+                    args.id?.endsWith('highlight_and_link')
+                ) {
+
+                    setSelectedText(
+                        editor.selection.text || ''
+                    );
+
+                    setStartOffset(
+                        editor.selection.startOffset
+                    );
+
+                    setEndOffset(
+                        editor.selection.endOffset
+                    );
+
+                    const bookmarks =
+                        editor.getBookmarks() || [];
+
+                    setBookmarkList(bookmarks);
+
+                    if (bookmarks.length > 0) {
+                        setSelectedBookmark(bookmarks[0]);
+                    }
+
+                    setDialogVisible(true);
+                }
+            };
+        }
+
+        const dialogButtons = [
+            {
+                buttonModel: {
+                    content: 'OK',
+                    isPrimary: true
+                },
+                click: () => {
+
+    const editor =
+        docxEditorRef.current?.documentEditor;
+
+    if (!editor || !selectedBookmark) {
+        return;
+    }
+
+    // Restore original selection
+    editor.selection.select(
+        startOffset,
+        endOffset
+    );
+
+    // Highlight selected text first
+    editor.selection.characterFormat.highlightColor =
+        'Yellow';
+
+    const fieldCode =
+        `HYPERLINK \\l "${selectedBookmark}"`;
+
+    const fieldResult =
+        editor.selection.text;
+
+    editor.editor.insertField(
+        fieldCode,
+        fieldResult
+    );
+
+    const newEndOffset =
+        editor.selection.endOffset;
+
+    editor.selection.select(
+        startOffset,
+        newEndOffset
+    );
+
+    editor.selection.characterFormat.highlightColor =
+        'Yellow';
+
+    setDialogVisible(false);
+}
+            },
+            {
+                buttonModel: {
+                    content: 'Cancel'
+                },
+                click: () => {
+                    console.log('Cancel Clicked');
+                    setDialogVisible(false);
+                }
+            }
+        ];
+
         return () => clearTimeout(timer);
+
     }, []);
 
     const getPreview = (text: string) => {
@@ -53,6 +169,7 @@ export default function DocxEditorSidePanel({
         if (!editor) {
             return;
         }
+
         const data: Finding[] = [];
 
         PARAGRAPHS.forEach((item) => {
@@ -61,18 +178,13 @@ export default function DocxEditorSidePanel({
             const results = editor.search.searchResults;
 
             if (results.length > 0) {
-
-                // Select the found text
                 editor.search.searchResults.index = 0;
 
-                // Get page number
                 const pageNumber = editor.selection.startPage;
 
-                // Highlight
                 editor.selection.characterFormat.highlightColor =
                     "Yellow";
 
-                // Bookmark
                 editor.editor.insertBookmark(item.bookmark);
 
                 data.push({
@@ -85,11 +197,13 @@ export default function DocxEditorSidePanel({
             results.clear();
         });
 
-        editor.selection.moveToDocumentStart()
-        editor.editor.enforceProtection('123', 'CommentsOnly');
+        editor.selection.moveToDocumentStart();
+        editor.editor.enforceProtection(
+            "123",
+            "CommentsOnly"
+        );
 
         setFindings(data);
-
     };
 
     const navigateToBookmark = (
@@ -107,6 +221,10 @@ export default function DocxEditorSidePanel({
     };
 
     const nextHighlight = () => {
+        if (findings.length === 0) {
+            return;
+        }
+
         const nextIndex =
             (activeIndex + 1) % findings.length;
 
@@ -116,44 +234,155 @@ export default function DocxEditorSidePanel({
         );
     };
 
+    const dialogButtons = [
+        {
+            buttonModel: {
+                content: "OK",
+                isPrimary: true
+            },
+            click: () => {
+                console.log("OK Clicked");
+
+                const editor =
+                    docxEditorRef.current?.documentEditor;
+
+                if (!editor) {
+                    console.log("Editor not found");
+                    return;
+                }
+
+                if (!selectedBookmark) {
+                    console.log("Bookmark not selected");
+                    return;
+                }
+
+                
+
+                const fieldCode =
+                    `HYPERLINK \\l "${selectedBookmark}"`;
+
+                editor.editor.insertField(
+                    fieldCode,
+                    selectedText
+                );
+
+                editor.selection.select(
+                    startOffset,
+                    endOffset
+                );
+
+                editor.selection.characterFormat.highlightColor =
+                    "Pink";
+
+                setDialogVisible(false);
+            }
+        },
+        {
+            buttonModel: {
+                content: "Cancel"
+            },
+            click: () => {
+                console.log("Cancel Clicked");
+                setDialogVisible(false);
+            }
+        }
+    ];
+
     return (
-        <div className="findings-panel">
-            <h3>Findings in document</h3>
-
-            <div className="hits-count">
-                {findings.length} hits
-            </div>
-
-            <div className="divider"></div>
-
-            {findings.map((item, index) => (
-                <div
-                    key={item.bookmark}
-                    className={`finding-card ${activeIndex === index ? "active" : ""
-                        }`}
-                    onClick={() =>
-                        navigateToBookmark(
-                            item.bookmark,
-                            index
-                        )
-                    }
-                >
-                    <div className="result-page">
-                        Page {item.pageNumber}
-                    </div>
-
-                    <div className="result-highlight">
-                        {item.preview}
-                    </div>
-                </div>
-            ))}
-
-            <button
-                className="action-button"
-                onClick={nextHighlight}
+        <>
+            <DialogComponent
+                ref={dialogRef}
+                header="Highlight and Link"
+                width="500px"
+                visible={dialogVisible}
+                isModal={true}
+                showCloseIcon={true}
+                cssClass="highlight-link-dialog-wrapper"
+                buttons={dialogButtons}
+                close={() => setDialogVisible(false)}
             >
-                Next Highlight →
-            </button>
-        </div>
+                <div className="highlight-link-dialog">
+
+                    <div className="dialog-field">
+                        <label className="dialog-label">
+                            Text to display
+                        </label>
+
+                        <input
+                            className="dialog-input"
+                            value={selectedText}
+                            readOnly
+                        />
+                    </div>
+
+                    <div className="dialog-field">
+                        <label className="dialog-label">
+                            Bookmark
+                        </label>
+
+                        <select
+                            className="dialog-select"
+                            value={selectedBookmark}
+                            onChange={(e) =>
+                                setSelectedBookmark(
+                                    e.target.value
+                                )
+                            }
+                        >
+                            {bookmarkList.map((bookmark) => (
+                                <option
+                                    key={bookmark}
+                                    value={bookmark}
+                                >
+                                    {bookmark}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                </div>
+            </DialogComponent>
+
+            <div className="findings-panel">
+                <h3>Findings in document</h3>
+
+                <div className="hits-count">
+                    {findings.length} hits
+                </div>
+
+                <div className="divider"></div>
+
+                {findings.map((item, index) => (
+                    <div
+                        key={item.bookmark}
+                        className={`finding-card ${activeIndex === index
+                            ? "active"
+                            : ""
+                            }`}
+                        onClick={() =>
+                            navigateToBookmark(
+                                item.bookmark,
+                                index
+                            )
+                        }
+                    >
+                        <div className="result-page">
+                            Page {item.pageNumber}
+                        </div>
+
+                        <div className="result-highlight">
+                            {item.preview}
+                        </div>
+                    </div>
+                ))}
+
+                <button
+                    className="action-button"
+                    onClick={nextHighlight}
+                >
+                    Next Highlight →
+                </button>
+            </div>
+        </>
     );
 }

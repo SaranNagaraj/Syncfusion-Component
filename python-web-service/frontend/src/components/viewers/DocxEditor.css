@@ -134,3 +134,34 @@
   background: #d1d5db;
   border-radius: 10px;
 }
+
+.highlight-link-dialog {
+    padding: 10px;
+}
+
+.dialog-field {
+    margin-bottom: 16px;
+}
+
+.dialog-label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+.dialog-input,
+.dialog-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #dcdcdc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.highlight-link-dialog-wrapper .e-dlg-header {
+    font-weight: 600;
+}
+
+.highlight-link-dialog-wrapper .e-dlg-content {
+    padding: 20px;
+}

@@ -12,6 +12,7 @@
   "dependencies": {
     "@syncfusion/ej2-react-documenteditor": "^33.2.15",
     "@syncfusion/ej2-react-pdfviewer": "^33.2.15",
+    "@syncfusion/ej2-react-popups": "^33.2.3",
     "@syncfusion/ej2-react-spreadsheet": "^33.2.13",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
