@@ -53,9 +53,6 @@ export default function DocxEditorSidePanel({
         if (!editor) {
             return;
         }
-
-        editor.editor.stopProtection('123');
-
         const data: Finding[] = [];
 
         PARAGRAPHS.forEach((item) => {
@@ -64,10 +61,9 @@ export default function DocxEditorSidePanel({
             const results = editor.search.searchResults;
 
             if (results.length > 0) {
-                results.index = 0;
 
                 // Select the found text
-                editor.search.navigate(results.index);
+                editor.search.searchResults.index = 0;
 
                 // Get page number
                 const pageNumber = editor.selection.startPage;
@@ -90,6 +86,7 @@ export default function DocxEditorSidePanel({
         });
 
         editor.selection.moveToDocumentStart()
+        editor.editor.enforceProtection('123', 'CommentsOnly');
 
         setFindings(data);
 

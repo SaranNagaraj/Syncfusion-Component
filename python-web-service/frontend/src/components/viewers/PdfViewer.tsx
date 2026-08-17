@@ -5,7 +5,7 @@ import {
     PageOrganizer, Inject
 } from '@syncfusion/ej2-react-pdfviewer';
 import PdfViewerSidePanel from "./PdfViewerSidePanel";
-import "./PdfViewer.css"
+import '../../index.css';
 
 const PdfViewer = () => {
     const pdfViewerRef = useRef<any>(null);

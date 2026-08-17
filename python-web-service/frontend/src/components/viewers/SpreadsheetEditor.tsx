@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { SpreadsheetComponent } from '@syncfusion/ej2-react-spreadsheet';
-import './Spreadsheet.css';
+import '../../index.css';
 import SpreadsheetSidePanel from "./SpreadsheetSidePanel";
 import { API_BASE } from "../../config";
 
