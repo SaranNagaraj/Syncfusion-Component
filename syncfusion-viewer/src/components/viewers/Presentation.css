@@ -136,6 +136,34 @@ html, body {
   background-color: #0d5ba7;
 }
 
+/* Checkbox Styles */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #0078d4;
+  border-radius: 2px;
+}
+
+.checkbox-input:focus {
+  outline: 2px solid #0078d4;
+  outline-offset: 2px;
+}
+
+.checkbox-text {
+  font-size: 13px;
+  color: #202124;
+  font-weight: 500;
+}
+
 /* Command Content */
 .command-content {
   flex: 1;
@@ -194,6 +222,16 @@ html, body {
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-word;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.result-occurrence.expanded {
+  -webkit-line-clamp: unset;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  display: block;
 }
 
 .result-page {

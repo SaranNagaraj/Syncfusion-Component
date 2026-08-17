@@ -268,7 +268,8 @@ presentationLib = WebService() #create our Presentation object
 def pptLoadFile():
     try:
         content = request.json['data']
-        result = presentationLib.PPTLoadFile(content)
+        viewNotes = bool(request.json.get('viewNotes', False))
+        result = presentationLib.PPTLoadFile(content, viewNotes)
         if result is None:
             return app.response_class(
                 response=json.dumps({"error": "Invalid input or empty PPT"}),
