@@ -20,7 +20,7 @@ export default function PresentationSidePanel({
     const [addedAnnotationIds, setAddedAnnotationIds] = useState([]);
     const [selectedOccurrence, setSelectedOccurrence] = useState('');
     const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
-    const [viewNotesChecked, setViewNotesChecked] = useState(false);
+    const [viewNotesChecked, setViewNotesChecked] = useState(true);
 
     const handleOccurrenceChange = (resultId: string) => {
         // If clicking on an already selected note, toggle expansion

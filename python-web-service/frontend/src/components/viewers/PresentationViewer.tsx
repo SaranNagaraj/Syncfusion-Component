@@ -11,7 +11,7 @@ const PresentationViewer = () => {
     const [searchWord, setSearchWord] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [pptFile, setPptFile] = useState<File | undefined>(undefined);
-    const [viewNotes, setViewNotes] = useState<boolean>(false);
+    const [viewNotes, setViewNotes] = useState<boolean>(true);
     const pdfViewerRef = useRef<any>(null);
     const originalPptBase64Ref = useRef<string | null>(null);
     let speakerNotes: any;
@@ -184,6 +184,7 @@ const PresentationViewer = () => {
                         ref={pdfViewerRef}
                         id="container"
                         resourcesLoaded={resourceLoaded}
+                        zoomMode="FitToPage"
                         resourceUrl="https://cdn.syncfusion.com/ej2/33.2.15/dist/ej2-pdfviewer-lib"
                         toolbarSettings= {{ toolbarItems: toolbarItems }} toolbarClick={toolbarClickHandler}>
                         <Inject services={[ Toolbar, Magnification, Navigation, Annotation, LinkAnnotation,
