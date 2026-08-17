@@ -10,7 +10,7 @@ const SpreadsheetSidePanel = forwardRef<
     { findRecord: () => void },
     Props
 >(({ spreadsheetRef }, ref) => {
-    const [searchWord, setSearchWord] = useState('');
+    const [searchWord, setSearchWord] = useState('Ava Wilson');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedOccurrence, setSelectedOccurrence] = useState(null);
 
@@ -18,6 +18,8 @@ const SpreadsheetSidePanel = forwardRef<
         if (searchWord) {
             let data: any = spreadsheetRef.current?.findAll(searchWord, "Workbook");
             setSearchResults(data);
+        } else if (searchResults && searchResults.length) {
+            handleClear();
         }
     };
 
