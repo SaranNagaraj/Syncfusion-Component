@@ -3,6 +3,7 @@ import { PdfViewerComponent, Toolbar, Inject, Magnification, Navigation, Annotat
   TextSearch, TextSelection, FormFields, Print, FormDesigner, PageOrganizer, CustomToolbarItem } from '@syncfusion/ej2-react-pdfviewer';
 import type { ToolbarItem } from '@syncfusion/ej2-react-pdfviewer';
 import PresentationSidePanel from "./PresentationSidePanel";
+import { createSpinner, showSpinner, hideSpinner } from '@syncfusion/ej2-popups';
 import { API_BASE } from "../../config";
 import "./Presentation.css"
 
@@ -26,6 +27,14 @@ const PresentationViewer = () => {
                 loadPPT(reader.result);
             };
             reader.readAsDataURL(blob);
+            if (document.getElementById('ppt-pdf-layout')) {
+                createSpinner({
+                // Specify the target for the spinner to show
+                    target: document.getElementById('ppt-pdf-layout') as HTMLElement,
+                });
+                // showSpinner() will make the spinner visible
+                showSpinner(document.getElementById('ppt-pdf-layout') as HTMLElement);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -41,6 +50,16 @@ const PresentationViewer = () => {
     const readFile = (args: any) => {
         const uploadedFile = args.target.files[0];
         const reader = new FileReader();
+        pdfViewerRef.current.unload();
+        setSearchResults([]);
+        if (document.getElementById('ppt-pdf-layout')) {
+            createSpinner({
+            // Specify the target for the spinner to show
+                target: document.getElementById('ppt-pdf-layout') as HTMLElement,
+            });
+            // showSpinner() will make the spinner visible
+            showSpinner(document.getElementById('ppt-pdf-layout') as HTMLElement);
+        }
         reader.onload = () => {
             loadPPT(reader.result);
         };
@@ -59,6 +78,7 @@ const PresentationViewer = () => {
             if (xhr.readyState === 4 && xhr.status === 200) {
               const response = JSON.parse(xhr.responseText);
               speakerNotes = response.speakerNotes;
+              hideSpinner(document.getElementById('ppt-pdf-layout') as HTMLElement);
               pdfViewerRef.current.documentPath = response.pdfBase64;
               pdfViewerRef.current.documentLoad = () => {
                 if (Object.keys(speakerNotes).length > 0) {
@@ -129,7 +149,7 @@ const PresentationViewer = () => {
     const px = (pt: number) => (pt * 96) / 72;
 
     return (
-        <div className="pdf-layout">
+        <div className="pdf-layout" id="ppt-pdf-layout">
             <input type="file" id="pv-fileUpload" accept=".ppt,.pptx,.pptm,.pot,.potx,.potm" onChange={readFile.bind(this)} style={{ 'display': 'block', 'visibility': 'hidden', 'width': '0', 'height': '0' }} />
             <div className='pdf-viewer-panel'>
                 <PdfViewerComponent 

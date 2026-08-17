@@ -51,7 +51,7 @@ export default function PresentationSidePanel({
                                                 Slide {result.slideNo}
                                             </div>
                                             <div className='result-occurrence'>
-                                                Speaker notes - {result.occurrenceCount}
+                                                {result.note}
                                             </div>
                                         </div>
                                     ))}
