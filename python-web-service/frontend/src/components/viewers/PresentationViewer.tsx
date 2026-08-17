@@ -1,16 +1,19 @@
 import { useRef, useState} from 'react';
-import { PdfViewerComponent, Toolbar, Inject, Magnification, Navigation, Annotation, LinkAnnotation, ThumbnailView, BookmarkView,
+import { PdfViewerComponent, Toolbar, Inject, Magnification, Navigation, Annotation, LinkAnnotation, ThumbnailView, BookmarkView, 
   TextSearch, TextSelection, FormFields, Print, FormDesigner, PageOrganizer, CustomToolbarItem } from '@syncfusion/ej2-react-pdfviewer';
 import type { ToolbarItem } from '@syncfusion/ej2-react-pdfviewer';
-import PresentationSidePanel from "./PresentationSidePanel";
 import { createSpinner, showSpinner, hideSpinner } from '@syncfusion/ej2-popups';
+import PresentationSidePanel from "./PresentationSidePanel";
 import { API_BASE } from "../../config";
-import '../../index.css';
+import "./Presentation.css"
 
 const PresentationViewer = () => {
     const [searchWord, setSearchWord] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const [pptFile, setPptFile] = useState<File | undefined>(undefined);
+    const [viewNotes, setViewNotes] = useState<boolean>(true);
     const pdfViewerRef = useRef<any>(null);
+    const originalPptBase64Ref = useRef<string | null>(null);
     let speakerNotes: any;
     const toolbarItems: (CustomToolbarItem | ToolbarItem)[] = [{ prefixIcon: 'e-icons e-folder', id: 'ppt_file_Open', tooltipText: 'Open' } as CustomToolbarItem,
       'UndoRedoTool', 'PageNavigationTool', 'MagnificationTool',
@@ -24,7 +27,8 @@ const PresentationViewer = () => {
             const blob = await response.blob();
             const reader = new FileReader();
             reader.onload = () => {
-                loadPPT(reader.result);
+                originalPptBase64Ref.current = reader.result as string;
+                loadPPT(reader.result, viewNotes);
             };
             reader.readAsDataURL(blob);
             if (document.getElementById('ppt-pdf-layout')) {
@@ -49,6 +53,7 @@ const PresentationViewer = () => {
 
     const readFile = (args: any) => {
         const uploadedFile = args.target.files[0];
+        setPptFile(uploadedFile);
         const reader = new FileReader();
         pdfViewerRef.current.unload();
         setSearchResults([]);
@@ -61,16 +66,30 @@ const PresentationViewer = () => {
             showSpinner(document.getElementById('ppt-pdf-layout') as HTMLElement);
         }
         reader.onload = () => {
-            loadPPT(reader.result);
+            originalPptBase64Ref.current = reader.result as string;
+            loadPPT(reader.result, viewNotes);
         };
         reader.readAsDataURL(uploadedFile);
     };
 
-    const loadPPT = (base64Data: any) => {
+    const loadPPT = (base64Data: any, viewNotesFlag: boolean = false) => {
         const post = JSON.stringify({
-            data: base64Data
+            data: base64Data,
+            viewNotes: viewNotesFlag
         });
         const url = `${API_BASE}/PPTLoadFile`;
+        if (pdfViewerRef.current.documentPath) {
+            pdfViewerRef.current.unload();
+            setSearchResults([]);
+            if (document.getElementById('ppt-pdf-layout')) {
+                createSpinner({
+                // Specify the target for the spinner to show
+                    target: document.getElementById('ppt-pdf-layout') as HTMLElement,
+                });
+                // showSpinner() will make the spinner visible
+                showSpinner(document.getElementById('ppt-pdf-layout') as HTMLElement);
+            }
+        }
         let xhr = new XMLHttpRequest();
         xhr.open("POST", url, true);
         xhr.setRequestHeader("Content-type", "application/json; charset=UTF-8");
@@ -131,7 +150,7 @@ const PresentationViewer = () => {
                 id: `slide_${slideNo}`,
                 slideNo: slideNo,
                 note: noteText,
-                page: pagesTouched.size > 0 ? Math.min(...pagesTouched) : null,
+                page: slideNo,
                 pages: Array.from(pagesTouched).sort((a, b) => a - b),
                 occurrenceCount: slideOccurrenceCount
             });
@@ -146,6 +165,15 @@ const PresentationViewer = () => {
         }
     };
 
+    const handleViewNotesChange = (isChecked: boolean) => {
+        setViewNotes(isChecked);
+
+        // Reload using the ORIGINAL PPTX base64 (not the converted PDF stored in the viewer)
+        if (originalPptBase64Ref.current) {
+            loadPPT(originalPptBase64Ref.current, isChecked);
+        }
+    };
+
     const px = (pt: number) => (pt * 96) / 72;
 
     return (
@@ -156,6 +184,7 @@ const PresentationViewer = () => {
                         ref={pdfViewerRef}
                         id="container"
                         resourcesLoaded={resourceLoaded}
+                        zoomMode="FitToPage"
                         resourceUrl="https://cdn.syncfusion.com/ej2/33.2.15/dist/ej2-pdfviewer-lib"
                         toolbarSettings= {{ toolbarItems: toolbarItems }} toolbarClick={toolbarClickHandler}>
                         <Inject services={[ Toolbar, Magnification, Navigation, Annotation, LinkAnnotation,
@@ -167,6 +196,8 @@ const PresentationViewer = () => {
                 pdfViewerRef={pdfViewerRef}
                 searchWord={searchWord}
                 searchResults={searchResults}
+                pptFile={pptFile}
+                onViewNotesChange={handleViewNotesChange}
             />
 
         </div>

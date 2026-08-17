@@ -124,6 +124,19 @@ export default function PdfViewerSidePanel({
         }
     };
 
+    const handleNextHighlight = () => {
+        if (searchResults.length === 0) return;
+
+        let nextIndex = 0;
+        if (selectedOccurrence) {
+            const currentIndex = searchResults.findIndex((x) => x.id === selectedOccurrence);
+            nextIndex = (currentIndex + 1) % searchResults.length;
+        }
+
+        const nextResult = searchResults[nextIndex];
+        handleOccurrenceChange({ target: { value: nextResult.id } });
+    };
+
     return (
         <div>
             {/* Right Panel - Results Display Panel */}
@@ -164,6 +177,37 @@ export default function PdfViewerSidePanel({
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+                            <div 
+                                onClick={handleNextHighlight}
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    marginTop: '16px',
+                                    paddingTop: '12px',
+                                    borderTop: '1px solid #e0e0e0',
+                                    padding: '12px',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '4px',
+                                    cursor: 'pointer',
+                                    backgroundColor: '#ffffff',
+                                    transition: 'all 0.2s',
+                                    fontSize: '13px',
+                                    fontWeight: '500',
+                                    color: '#333'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#f5f5f5';
+                                    e.currentTarget.style.borderColor = '#d0d0d0';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#ffffff';
+                                    e.currentTarget.style.borderColor = '#e0e0e0';
+                                }}
+                            >
+                                <span>Next highlight</span>
+                                <span className='e-icons e-arrow-right' style={{ fontSize: '16px', color: '#1f73e6' }}></span>
                             </div>
                         </>
                     )}

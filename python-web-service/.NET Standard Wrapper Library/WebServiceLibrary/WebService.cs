@@ -185,13 +185,11 @@ namespace WebServiceLibrary
         #endregion
 
         #region presentation APIs
-        public PresentationResult PPTLoadFile(string base64data)
+        public PresentationResult PPTLoadFile(string base64, bool viewNotes)
         {
-            if (base64data != string.Empty)
+            if (base64 != string.Empty)
             {
 
-                string base64 = base64data;
-                //string fileName = args.FileData[0].Name; 
                 string data = base64.Split(',')[1];
                 byte[] bytes = Convert.FromBase64String(data);
                 var outputStream = new MemoryStream();
@@ -201,7 +199,9 @@ namespace WebServiceLibrary
                 {
                     IPresentation pptxDoc = Presentation.Open(stream);
                     PresentationToPdfConverterSettings pdfConverterSettings = new PresentationToPdfConverterSettings();
-                    pdfConverterSettings.PublishOptions = PublishOptions.NotesPages;
+                    if (viewNotes == true) {
+                        pdfConverterSettings.PublishOptions = PublishOptions.NotesPages;
+                    }
                     for (int i = 0; i < pptxDoc.Slides.Count; i++)
                     {
                         ISlide slide = pptxDoc.Slides[i];
