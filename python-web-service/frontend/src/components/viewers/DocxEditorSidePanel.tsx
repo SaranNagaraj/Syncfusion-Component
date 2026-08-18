@@ -177,6 +177,16 @@ export default function DocxEditorSidePanel({
                     return;
                 }
 
+                const selectedBookmark =
+
+                    (document.getElementById(
+
+                        "bookmarkDropdown"
+
+                    ) as HTMLSelectElement).value;
+
+                console.log(selectedBookmark);
+
                 if (!selectedBookmark) {
                     console.log("Bookmark not selected");
                     return;
@@ -194,7 +204,7 @@ export default function DocxEditorSidePanel({
 
                 let endOffset = editor.selection.endOffset;
                 editor.selection.select(startOffset, endOffset);
-                editor.selection.characterFormat.highlightColor = 'Yellow';
+                editor.selection.characterFormat.highlightColor = 'Red';
 
                 setDialogVisible(false);
             }
@@ -243,19 +253,12 @@ export default function DocxEditorSidePanel({
                         </label>
 
                         <select
+                            id="bookmarkDropdown"
                             className="dialog-select"
-                            value={selectedBookmark}
-                            onChange={(e) =>
-                                setSelectedBookmark(
-                                    e.target.value
-                                )
-                            }
+                            defaultValue={bookmarkList[0]}
                         >
                             {bookmarkList.map((bookmark) => (
-                                <option
-                                    key={bookmark}
-                                    value={bookmark}
-                                >
+                                <option key={bookmark} value={bookmark}>
                                     {bookmark}
                                 </option>
                             ))}
