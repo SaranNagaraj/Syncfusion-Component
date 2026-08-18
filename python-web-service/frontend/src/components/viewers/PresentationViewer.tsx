@@ -5,7 +5,7 @@ import type { ToolbarItem } from '@syncfusion/ej2-react-pdfviewer';
 import { createSpinner, showSpinner, hideSpinner } from '@syncfusion/ej2-popups';
 import PresentationSidePanel from "./PresentationSidePanel";
 import { API_BASE } from "../../config";
-import "./Presentation.css"
+import '../../index.css';
 
 const PresentationViewer = () => {
     const [searchWord, setSearchWord] = useState('');

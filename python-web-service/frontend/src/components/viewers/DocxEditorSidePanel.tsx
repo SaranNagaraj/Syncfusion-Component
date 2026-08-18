@@ -14,15 +14,15 @@ interface Finding {
 
 const PARAGRAPHS = [
     {
-        bookmark: "Bookmark_1",
+        bookmark: "Para_Bookmark_1",
         text: "While most adore their fluffy fur and round heads, which help give them their cuddly bear quality, others are fascinated by the many mysteries of the giant panda."
     },
     {
-        bookmark: "Bookmark_2",
+        bookmark: "Para_Bookmark_2",
         text: "DNA analysis has put one mystery to rest. It has revealed that while the red panda is a distant relation, the giant panda's closest relative is the spectacled bear from South America."
     },
     {
-        bookmark: "Bookmark_3",
+        bookmark: "Para_Bookmark_3",
         text: "Researchers have recently discovered that the gene responsible for tasting savory or umami flavors, such as meat, is inactive in giant pandas."
     }
 ];
@@ -36,8 +36,6 @@ export default function DocxEditorSidePanel({
     const [selectedText, setSelectedText] = useState("");
     const [bookmarkList, setBookmarkList] = useState<string[]>([]);
     const [selectedBookmark, setSelectedBookmark] = useState("");
-    const [startOffset, setStartOffset] = useState("");
-    const [endOffset, setEndOffset] = useState("");
 
     const dialogRef = useRef<DialogComponent>(null);
 
@@ -60,24 +58,16 @@ export default function DocxEditorSidePanel({
             editor.contextMenu.addCustomMenu(menuItems, false);
 
             editor.customContextMenuSelect = (args: any) => {
-
-                console.log('Menu Clicked', args);
+                console.log("Menu Clicked", args);
 
                 if (
-                    args.id === 'highlight_and_link' ||
-                    args.id?.endsWith('highlight_and_link')
+                    (args.id === "highlight_and_link" ||
+                        args.id?.endsWith("highlight_and_link")) &&
+                    !editor.selection.isEmpty &&
+                    /\S/.test(editor.selection.text || "")
                 ) {
-
                     setSelectedText(
-                        editor.selection.text || ''
-                    );
-
-                    setStartOffset(
-                        editor.selection.startOffset
-                    );
-
-                    setEndOffset(
-                        editor.selection.endOffset
+                        editor.selection.text || ""
                     );
 
                     const bookmarks =
@@ -93,67 +83,6 @@ export default function DocxEditorSidePanel({
                 }
             };
         }
-
-        const dialogButtons = [
-            {
-                buttonModel: {
-                    content: 'OK',
-                    isPrimary: true
-                },
-                click: () => {
-
-    const editor =
-        docxEditorRef.current?.documentEditor;
-
-    if (!editor || !selectedBookmark) {
-        return;
-    }
-
-    // Restore original selection
-    editor.selection.select(
-        startOffset,
-        endOffset
-    );
-
-    // Highlight selected text first
-    editor.selection.characterFormat.highlightColor =
-        'Yellow';
-
-    const fieldCode =
-        `HYPERLINK \\l "${selectedBookmark}"`;
-
-    const fieldResult =
-        editor.selection.text;
-
-    editor.editor.insertField(
-        fieldCode,
-        fieldResult
-    );
-
-    const newEndOffset =
-        editor.selection.endOffset;
-
-    editor.selection.select(
-        startOffset,
-        newEndOffset
-    );
-
-    editor.selection.characterFormat.highlightColor =
-        'Yellow';
-
-    setDialogVisible(false);
-}
-            },
-            {
-                buttonModel: {
-                    content: 'Cancel'
-                },
-                click: () => {
-                    console.log('Cancel Clicked');
-                    setDialogVisible(false);
-                }
-            }
-        ];
 
         return () => clearTimeout(timer);
 
@@ -198,10 +127,7 @@ export default function DocxEditorSidePanel({
         });
 
         editor.selection.moveToDocumentStart();
-        editor.editor.enforceProtection(
-            "123",
-            "CommentsOnly"
-        );
+        // editor.editor.enforceProtection("123","CommentsOnly");
 
         setFindings(data);
     };
@@ -256,7 +182,7 @@ export default function DocxEditorSidePanel({
                     return;
                 }
 
-                
+                let startOffset = editor.selection.startOffset;
 
                 const fieldCode =
                     `HYPERLINK \\l "${selectedBookmark}"`;
@@ -266,13 +192,9 @@ export default function DocxEditorSidePanel({
                     selectedText
                 );
 
-                editor.selection.select(
-                    startOffset,
-                    endOffset
-                );
-
-                editor.selection.characterFormat.highlightColor =
-                    "Pink";
+                let endOffset = editor.selection.endOffset;
+                editor.selection.select(startOffset, endOffset);
+                editor.selection.characterFormat.highlightColor = 'Yellow';
 
                 setDialogVisible(false);
             }
