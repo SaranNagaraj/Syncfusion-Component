@@ -26,19 +26,18 @@ export default function PdfViewerSidePanel({
     pdfViewerRef
 }: Props) {
     const [searchResults, setSearchResults] = useState([]);
-    const [addedAnnotationIds, setAddedAnnotationIds] = useState([]);
     const [selectedOccurrence, setSelectedOccurrence] = useState('');
-    const [isLoaded, setIsLoaded] = useState(false);
+    const [isLoaded] = useState(false);
 
-    const px = (pt) => (pt * 96) / 72;
+    const px = (pt: number) => (pt * 96) / 72;
 
     const handleAutoSearch = async () => {
         const viewer = pdfViewerRef.current;
         if (!viewer) return;
 
         try {
-            const allResults = [];
-            const allAnnotationIds = [];
+            const allResults: any = [];
+            const allAnnotationIds: any = [];
             let globalOccurrenceIndex = 1;
 
             // Search for each of the 3 terms
@@ -87,7 +86,6 @@ export default function PdfViewerSidePanel({
             }
 
             setSearchResults(allResults);
-            setAddedAnnotationIds(allAnnotationIds);
         } catch (error) {
             console.error('Auto search error:', error);
             setSearchResults([]);
@@ -102,11 +100,11 @@ export default function PdfViewerSidePanel({
         }
     }, [pdfViewerRef, isLoaded]);
 
-    const handleOccurrenceChange = (event) => {
+    const handleOccurrenceChange = (event: any) => {
         const value = event.target.value;
         setSelectedOccurrence(value);
 
-        const selected = searchResults.find((x) => x.id === value);
+        const selected: any = searchResults.find((x: any) => x.id === value);
         if (!selected) return;
 
         const viewer = pdfViewerRef.current;
@@ -115,7 +113,7 @@ export default function PdfViewerSidePanel({
         viewer.navigation.goToPage(selected.page);
         
         const annotation = viewer.annotationCollection?.find(
-            (a) => a.customData?.searchId === selected.id
+            (a: any) => a.customData?.searchId === selected.id
         );
         if (annotation) {
             setTimeout(() => {
@@ -129,11 +127,11 @@ export default function PdfViewerSidePanel({
 
         let nextIndex = 0;
         if (selectedOccurrence) {
-            const currentIndex = searchResults.findIndex((x) => x.id === selectedOccurrence);
+            const currentIndex = searchResults.findIndex((x: any) => x.id === selectedOccurrence);
             nextIndex = (currentIndex + 1) % searchResults.length;
         }
 
-        const nextResult = searchResults[nextIndex];
+        const nextResult: any = searchResults[nextIndex];
         handleOccurrenceChange({ target: { value: nextResult.id } });
     };
 
@@ -154,7 +152,7 @@ export default function PdfViewerSidePanel({
                                 Total Hits: <strong>{searchResults.length}</strong>
                             </div>
                             <div className='results-list'>
-                                {searchResults.map((result, index) => (
+                                {searchResults.map((result: any, index) => (
                                     <div 
                                         key={index} 
                                         className={`result-item ${selectedOccurrence === result.id ? 'selected' : ''}`}
