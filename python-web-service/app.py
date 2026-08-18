@@ -43,6 +43,7 @@ current_working_directory = os.getcwd()
 # Check both so the same code works locally and in the Linux container.
 _publish_candidate_a = current_working_directory + "/.NET Standard Wrapper Library/WebServiceLibrary/bin/Release/netstandard2.0/publish/"
 _publish_candidate_b = current_working_directory + "/.NET Standard Wrapper Library/WebServiceLibrary/bin/Release/netstandard2.0/linux-x64/publish/"
+_publish_candidate_c = current_working_directory + "/.NET Standard Wrapper Library/WebServiceLibrary/runtimes/"
 publish_base = _publish_candidate_a if os.path.isdir(_publish_candidate_a) else _publish_candidate_b
 
 # Native runtimes may be placed in either of these locations, depending on
@@ -64,6 +65,17 @@ native_search_dirs = [
 _seen = set()
 runtime_dirs = []
 for d in native_search_dirs:
+    if d not in _seen:
+        _seen.add(d)
+        runtime_dirs.append(d)
+        
+native_search_dirs_win = [
+    os.path.join(_publish_candidate_c, "win-x64", "native"),
+    publish_base,
+]
+
+# De-duplicate for windows.
+for d in native_search_dirs_win:
     if d not in _seen:
         _seen.add(d)
         runtime_dirs.append(d)
