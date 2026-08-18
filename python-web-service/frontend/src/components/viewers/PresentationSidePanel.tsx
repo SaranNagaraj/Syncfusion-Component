@@ -6,7 +6,6 @@ interface Props {
     pdfViewerRef: React.RefObject<any>;
     searchWord: string;
     searchResults: any[];
-    pptFile?: File;
     onViewNotesChange?: (isChecked: boolean) => void;
 }
 
@@ -14,10 +13,8 @@ export default function PresentationSidePanel({
     pdfViewerRef,
     searchWord,
     searchResults,
-    pptFile,
     onViewNotesChange
 }: Props) {
-    const [addedAnnotationIds, setAddedAnnotationIds] = useState([]);
     const [selectedOccurrence, setSelectedOccurrence] = useState('');
     const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
     const [viewNotesChecked, setViewNotesChecked] = useState(true);

@@ -10,7 +10,6 @@ import '../../index.css';
 const PresentationViewer = () => {
     const [searchWord, setSearchWord] = useState('');
     const [searchResults, setSearchResults] = useState([]);
-    const [pptFile, setPptFile] = useState<File | undefined>(undefined);
     const [viewNotes, setViewNotes] = useState<boolean>(true);
     const pdfViewerRef = useRef<any>(null);
     const originalPptBase64Ref = useRef<string | null>(null);
@@ -53,7 +52,6 @@ const PresentationViewer = () => {
 
     const readFile = (args: any) => {
         const uploadedFile = args.target.files[0];
-        setPptFile(uploadedFile);
         const reader = new FileReader();
         pdfViewerRef.current.unload();
         setSearchResults([]);
@@ -196,7 +194,6 @@ const PresentationViewer = () => {
                 pdfViewerRef={pdfViewerRef}
                 searchWord={searchWord}
                 searchResults={searchResults}
-                pptFile={pptFile}
                 onViewNotesChange={handleViewNotesChange}
             />
 
