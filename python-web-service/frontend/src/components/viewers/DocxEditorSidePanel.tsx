@@ -35,8 +35,7 @@ export default function DocxEditorSidePanel({
     const [dialogVisible, setDialogVisible] = useState(false);
     const [selectedText, setSelectedText] = useState("");
     const [bookmarkList, setBookmarkList] = useState<string[]>([]);
-    const [selectedBookmark, setSelectedBookmark] = useState("");
-
+    const bookmarkRef = useRef("");
     const dialogRef = useRef<DialogComponent>(null);
 
     useEffect(() => {
@@ -76,7 +75,7 @@ export default function DocxEditorSidePanel({
                     setBookmarkList(bookmarks);
 
                     if (bookmarks.length > 0) {
-                        setSelectedBookmark(bookmarks[0]);
+                        bookmarkRef.current = bookmarks[0];
                     }
 
                     setDialogVisible(true);
@@ -177,7 +176,7 @@ export default function DocxEditorSidePanel({
                     return;
                 }
 
-                const selectedBookmark =
+                const chosenBookmark =
 
                     (document.getElementById(
 
@@ -185,9 +184,9 @@ export default function DocxEditorSidePanel({
 
                     ) as HTMLSelectElement).value;
 
-                console.log(selectedBookmark);
+                console.log(chosenBookmark);
 
-                if (!selectedBookmark) {
+                if (!chosenBookmark) {
                     console.log("Bookmark not selected");
                     return;
                 }
@@ -195,7 +194,7 @@ export default function DocxEditorSidePanel({
                 let startOffset = editor.selection.startOffset;
 
                 const fieldCode =
-                    `HYPERLINK \\l "${selectedBookmark}"`;
+                    `HYPERLINK \\l "${chosenBookmark}"`;
 
                 editor.editor.insertField(
                     fieldCode,
@@ -255,7 +254,7 @@ export default function DocxEditorSidePanel({
                         <select
                             id="bookmarkDropdown"
                             className="dialog-select"
-                            defaultValue={bookmarkList[0]}
+                            defaultValue={bookmarkRef.current || bookmarkList[0]}
                         >
                             {bookmarkList.map((bookmark) => (
                                 <option key={bookmark} value={bookmark}>

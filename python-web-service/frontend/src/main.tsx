@@ -5,7 +5,7 @@ import App from './App.tsx'
 import { registerLicense } from '@syncfusion/ej2-base';
 
 // Register your Syncfusion license key below
-registerLicense('Ngo9BigBOggjHTQxAR8/V1JAaF5cX2pCdkx3QHxbf1x2ZFRHal9QTnZbUiweQnxTdENjUX5acHBWQWVUUEdwWUleZw==');
+registerLicense('Enter license Key');
 
 
 createRoot(document.getElementById('root')!).render(

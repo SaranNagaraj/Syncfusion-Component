@@ -29,7 +29,7 @@ const DocxEditor = () => {
                     ref={docxEditorRef}
                     height="100%"
                     toolbarMode="Ribbon"
-                    serviceUrl="{`${API_BASE}/`}"
+                    serviceUrl={`${API_BASE}/`}
                     enableToolbar={true}
                 />
             </div>
