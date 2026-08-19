@@ -17,7 +17,7 @@ export default function PresentationSidePanel({
 }: Props) {
     const [selectedOccurrence, setSelectedOccurrence] = useState('');
     const [expandedNoteId, setExpandedNoteId] = useState<string | null>(null);
-    const [viewNotesChecked, setViewNotesChecked] = useState(true);
+    const [viewNotesChecked, setViewNotesChecked] = useState(false);
 
     const handleOccurrenceChange = (resultId: string) => {
         // If clicking on an already selected note, toggle expansion

@@ -10,7 +10,7 @@ const PresentationViewer = () => {
     const [searchWord, setSearchWord] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [pptFile, setPptFile] = useState<File | undefined>(undefined);
-    const [viewNotes, setViewNotes] = useState<boolean>(true);
+    const [viewNotes, setViewNotes] = useState<boolean>(false);
     const pdfViewerRef = useRef<any>(null);
     const originalPptBase64Ref = useRef<string | null>(null);
     let speakerNotes: any;
